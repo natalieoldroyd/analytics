@@ -1,5 +1,8 @@
 import {useNonce} from '@shopify/hydrogen';
 import {defer} from '@shopify/remix-oxygen';
+import { useShopifyCookies, AnalyticsEventName, getClientBrowserParameters, sendShopifyAnalytics} from '@shopify/hydrogen';
+import {usePageAnalytics} from './utils/utils';
+import React, {useRef, useEffect} from 'react';
 import {
   Links,
   Meta,
@@ -10,6 +13,8 @@ import {
   useRouteError,
   useLoaderData,
   ScrollRestoration,
+  useLocation,
+
   isRouteErrorResponse,
 } from '@remix-run/react';
 import favicon from '../public/favicon.svg';
@@ -87,14 +92,48 @@ export async function loader({context}) {
       header: await headerPromise,
       isLoggedIn,
       publicStoreDomain,
+      analytics: {
+        shopId: "gid://shopify/Shop/68829970454",
+      }
     },
     {headers},
   );
 }
 
 export default function App() {
+  const hasUserConsent = true;
   const nonce = useNonce();
+  useShopifyCookies({hasUserConsent});
   const data = useLoaderData();
+  const location = useLocation();
+  const lastLocationKey = useRef('');
+  const pageAnalytics = usePageAnalytics({hasUserConsent})
+
+  useEffect(() => {
+    // Filter out useEffect running twice
+    if (lastLocationKey.current === location.key) return;
+
+    lastLocationKey.current = location.key;
+
+    // Send page view analytics
+
+    const payload = {
+      ...getClientBrowserParameters(),
+      ...pageAnalytics,
+    };
+
+    console.log("page analytics++++++", pageAnalytics);
+    // pageAnalytics = {
+    //    shopId: 'gid://shopify/Shop/1',
+    //    pageType: 'product',
+    // }
+    sendShopifyAnalytics({
+      eventName: AnalyticsEventName.PAGE_VIEW,
+      payload,
+    });
+
+    // This hook is where you can send a page view event to Shopify and other third-party analytics
+  }, [location, pageAnalytics]);
 
   return (
     <html lang="en">

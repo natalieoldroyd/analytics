@@ -1,7 +1,7 @@
 import {defer} from '@shopify/remix-oxygen';
 import {Await, useLoaderData, Link} from '@remix-run/react';
 import {Suspense} from 'react';
-import {Image, Money} from '@shopify/hydrogen';
+import {AnalyticsPageType, Image, Money} from '@shopify/hydrogen';
 
 export const meta = () => {
   return [{title: 'Hydrogen | Home'}];
@@ -13,7 +13,14 @@ export async function loader({context}) {
   const featuredCollection = collections.nodes[0];
   const recommendedProducts = storefront.query(RECOMMENDED_PRODUCTS_QUERY);
 
-  return defer({featuredCollection, recommendedProducts});
+  return defer({
+    featuredCollection,
+    recommendedProducts,
+    analytics: {
+      pageType: AnalyticsPageType.home,
+      // products: [product]
+    }
+  });
 }
 
 export default function Homepage() {
