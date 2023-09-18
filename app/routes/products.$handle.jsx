@@ -1,6 +1,9 @@
-import {Suspense} from 'react';
+import {Suspense, useEffect} from 'react';
+import {usePageAnalytics} from '../utils/utils';
 import {defer, redirect} from '@shopify/remix-oxygen';
 import {Await, Link, useLoaderData} from '@remix-run/react';
+// import { AddToCartButton } from '~/components/AddtoCart';
+//hello
 
 import {
   Image,
@@ -8,8 +11,9 @@ import {
   VariantSelector,
   getSelectedProductOptions,
   CartForm,
+  AnalyticsPageType
 } from '@shopify/hydrogen';
-import {getVariantUrl} from '~/utils';
+import {getVariantUrl} from '~/utils/utils';
 
 export const meta = ({data}) => {
   return [{title: `Hydrogen | ${data.product.title}`}];
@@ -68,7 +72,14 @@ export async function loader({params, request, context}) {
     variables: {handle},
   });
 
-  return defer({product, variants});
+  return defer({
+    product,
+    variants,
+    analytics: {
+      pageType: AnalyticsPageType.Product,
+      products: [product.selectedVariant]
+    }
+  });
 }
 
 function redirectToFirstVariant({product, request}) {
@@ -182,6 +193,54 @@ function ProductPrice({selectedVariant}) {
   );
 }
 
+function AddToCartAnalytics({
+  fetcher,
+  children,
+}) {
+  // Data from action response
+  const fetcherData = fetcher.data;
+  // Data in form inputs
+  const formData = fetcher.formData;
+  // Data from loaders
+  const pageAnalytics = usePageAnalytics({hasUserConsent: true});
+
+  useEffect(() => {
+    if (formData) {
+      const cartData = {};
+      const cartInputs = CartForm.getFormInput(formData);
+
+      try {
+        // Get analytics data from form inputs
+        if (cartInputs.inputs.analytics) {
+          const dataInForm = JSON.parse(
+            String(cartInputs.inputs.analytics),
+          );
+          Object.assign(cartData, dataInForm);
+        }
+      } catch {
+        // do nothing
+      }
+
+      // If we got a response from the add to cart action
+      if (Object.keys(cartData).length && fetcherData) {
+        const addToCartPayload = {
+          ...getClientBrowserParameters(),
+          ...pageAnalytics,
+          ...cartData,
+          cartId: fetcherData.cart.id,
+        };
+
+        sendShopifyAnalytics({
+          eventName: AnalyticsEventName.ADD_TO_CART,
+          payload: addToCartPayload,
+        });
+      }
+    }
+  }, [fetcherData, formData, pageAnalytics]);
+  return <>{children}</>;
+}
+
+
 function ProductForm({product, selectedVariant, variants}) {
   return (
     <div className="product-form">
@@ -244,28 +303,43 @@ function ProductOptions({option}) {
   );
 }
 
-function AddToCartButton({analytics, children, disabled, lines, onClick}) {
+export function AddToCartButton({
+  children,
+  lines,
+  disabled,
+  analytics,
+}) {
   return (
-    <CartForm route="/cart" inputs={{lines}} action={CartForm.ACTIONS.LinesAdd}>
-      {(fetcher) => (
-        <>
-          <input
-            name="analytics"
-            type="hidden"
-            value={JSON.stringify(analytics)}
-          />
-          <button
-            type="submit"
-            onClick={onClick}
-            disabled={disabled ?? fetcher.state !== 'idle'}
-          >
-            {children}
-          </button>
-        </>
-      )}
+    <CartForm
+      route="/cart"
+      inputs={
+        {lines}
+      }
+      action={CartForm.ACTIONS.LinesAdd}
+    >
+      {
+        (fetcher) => {
+          return (
+            <AddToCartAnalytics fetcher={fetcher}>
+              <input
+                type="hidden"
+                name="analytics"
+                value={JSON.stringify(analytics)}
+              />
+              <button
+                type="submit"
+                disabled={disabled ?? fetcher.state !== 'idle'}
+              >
+                {children}
+              </button>
+            </AddToCartAnalytics>
+          );
+        }
+      }
     </CartForm>
   );
 }
+
 
 const PRODUCT_VARIANT_FRAGMENT = `#graphql
   fragment ProductVariant on ProductVariant {

@@ -5,8 +5,9 @@ import {
   getPaginationVariables,
   Image,
   Money,
+  AnalyticsPageType
 } from '@shopify/hydrogen';
-import {useVariantUrl} from '~/utils';
+import {useVariantUrl} from '~/utils/utils';
 
 export const meta = ({data}) => {
   return [{title: `Hydrogen | ${data.collection.title} Collection`}];
@@ -32,7 +33,13 @@ export async function loader({request, params, context}) {
       status: 404,
     });
   }
-  return json({collection});
+  return json({
+    collection,
+    analytics: {
+      pageType: AnalyticsPageType.collection,
+      collection: [collection],
+    },
+  });
 }
 
 export default function Collection() {
