@@ -1,7 +1,7 @@
 import {useNonce} from '@shopify/hydrogen';
 import {defer} from '@shopify/remix-oxygen';
 import { useShopifyCookies, AnalyticsEventName, getClientBrowserParameters, sendShopifyAnalytics} from '@shopify/hydrogen';
-import {usePageAnalytics} from './utils/utils';
+import {usePageAnalytics} from './utils/usePageAnalytics';
 import React, {useRef, useEffect} from 'react';
 import {
   Links,
@@ -68,6 +68,7 @@ export async function loader({context}) {
 
   // defer the cart query by not awaiting it
   const cartPromise = cart.get();
+  const cartId = cartPromise?.id;
 
   // defer the footer query (below the fold)
   const footerPromise = storefront.query(FOOTER_QUERY, {
@@ -94,6 +95,9 @@ export async function loader({context}) {
       publicStoreDomain,
       analytics: {
         shopId: "gid://shopify/Shop/68829970454",
+        cartId,
+
+
       }
     },
     {headers},
@@ -117,12 +121,14 @@ export default function App() {
 
     // Send page view analytics
 
+    console.log('pageAnalytics', pageAnalytics);
+
     const payload = {
       ...getClientBrowserParameters(),
       ...pageAnalytics,
     };
 
-    console.log("page analytics++++++", pageAnalytics);
+
     // pageAnalytics = {
     //    shopId: 'gid://shopify/Shop/1',
     //    pageType: 'product',
@@ -131,6 +137,8 @@ export default function App() {
       eventName: AnalyticsEventName.PAGE_VIEW,
       payload,
     });
+
+
 
     // This hook is where you can send a page view event to Shopify and other third-party analytics
   }, [location, pageAnalytics]);
