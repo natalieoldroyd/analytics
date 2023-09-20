@@ -59,6 +59,7 @@ export async function action({request, context}) {
   }
 
   const cartId = result.cart.id;
+  const cartData =session.get(cartId);
   const headers = cart.setCartId(result.cart.id);
   const {cart: cartResult, errors} = result;
 
@@ -73,7 +74,7 @@ export async function action({request, context}) {
       cart: cartResult,
       errors,
       analytics: {
-        cartId,
+        cartData,
       },
     },
     {status, headers},
@@ -83,6 +84,7 @@ export async function action({request, context}) {
 export default function Cart() {
   const [root] = useMatches();
   const cart = root.data?.cart;
+
 
   return (
     <div className="cart">
