@@ -44,6 +44,8 @@ export async function loader({request, params, context}) {
 
 export default function Collection() {
   const {collection} = useLoaderData();
+  const productsGrid = collection.products
+  console.log('products grid', productsGrid)
 
   return (
     <div className="collection">
@@ -126,6 +128,7 @@ const PRODUCT_ITEM_FRAGMENT = `#graphql
       width
       height
     }
+    totalInventory
     priceRange {
       minVariantPrice {
         ...MoneyProductItem

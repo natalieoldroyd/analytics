@@ -107,16 +107,16 @@ export default function Product() {
   const {product, variants, analytics} = useLoaderData();
   const {selectedVariant} = product;
   const data = useLoaderData()
-  const inStockVariants = variants.nodes.filter((variant) => variant.quantityAvailable > 0);
+  // const inStockVariants = variants.nodes.filter((variant) => variant.quantityAvailable > 0);
 console.log('data', data)
-console.log('inStockVariants', inStockVariants)
+// console.log('inStockVariants', inStockVariants)
   return (
     <div className="product">
       <ProductImage image={selectedVariant?.image} />
       <ProductMain
         selectedVariant={selectedVariant}
         product={product}
-        variants={inStockVariants}
+        variants={variants}
       />
             <AddToCartButton
         disabled={!selectedVariant || !selectedVariant.availableForSale}
