@@ -107,14 +107,16 @@ export default function Product() {
   const {product, variants, analytics} = useLoaderData();
   const {selectedVariant} = product;
   const data = useLoaderData()
+  const inStockVariants = variants.nodes.filter((variant) => variant.quantityAvailable > 0);
 console.log('data', data)
+console.log('inStockVariants', inStockVariants)
   return (
     <div className="product">
       <ProductImage image={selectedVariant?.image} />
       <ProductMain
         selectedVariant={selectedVariant}
         product={product}
-        variants={variants}
+        variants={inStockVariants}
       />
             <AddToCartButton
         disabled={!selectedVariant || !selectedVariant.availableForSale}
@@ -219,54 +221,6 @@ function ProductPrice({selectedVariant}) {
   );
 }
 
-// function AddToCartAnalytics({
-//   fetcher,
-//   children,
-// }) {
-//   // Data from action response
-//   const fetcherData = fetcher.data;
-//   // Data in form inputs
-//   const formData = fetcher.formData;
-//   // Data from loaders
-//   const pageAnalytics = usePageAnalytics({hasUserConsent: true});
-
-//   useEffect(() => {
-//     if (formData) {
-//       const cartData = {};
-//       const cartInputs = CartForm.getFormInput(formData);
-
-//       try {
-//         // Get analytics data from form inputs
-//         if (cartInputs.inputs.analytics) {
-//           const dataInForm = JSON.parse(
-//             String(cartInputs.inputs.analytics),
-//           );
-//           Object.assign(cartData, dataInForm);
-//         }
-//       } catch {
-//         // do nothing
-//       }
-
-//       // If we got a response from the add to cart action
-//       if (Object.keys(cartData).length && fetcherData) {
-//         const addToCartPayload = {
-//           ...getClientBrowserParameters(),
-//           ...pageAnalytics,
-//           ...cartData,
-//           cartId: fetcherData.cart.id,
-//         };
-
-//         sendShopifyAnalytics({
-//           eventName: AnalyticsEventName.ADD_TO_CART,
-//           payload: addToCartPayload,
-//         });
-//       }
-//     }
-//   }, [fetcherData, formData, pageAnalytics]);
-//   return <>{children}</>;
-// }
-
-
 function ProductForm({product, selectedVariant, variants, analytics}) {
   const variantstoPrintProductForm = useLoaderData().variants;
 
@@ -364,6 +318,7 @@ const PRODUCT_VARIANT_FRAGMENT = `#graphql
       currencyCode
     }
     id
+    quantityAvailable
     image {
       __typename
       id
