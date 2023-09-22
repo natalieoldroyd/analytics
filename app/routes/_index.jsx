@@ -12,6 +12,7 @@ export async function loader({context}) {
   const {collections} = await storefront.query(FEATURED_COLLECTION_QUERY);
   const featuredCollection = collections.nodes[0];
   const recommendedProducts = storefront.query(RECOMMENDED_PRODUCTS_QUERY);
+  //force new build
 
   return defer({
     featuredCollection,
