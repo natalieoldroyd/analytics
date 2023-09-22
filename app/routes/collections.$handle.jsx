@@ -45,6 +45,8 @@ export async function loader({request, params, context}) {
 export default function Collection() {
   const {collection} = useLoaderData();
 
+  // console.log('products grid', productsGrid)
+
   return (
     <div className="collection">
       <h1>{collection.title}</h1>
@@ -68,9 +70,16 @@ export default function Collection() {
 }
 
 function ProductsGrid({products}) {
+  const {collection} = useLoaderData();
+  const productsGridFull = collection.products.nodes;
+  const productGrid = productsGridFull.filter(product => {
+   return product.totalInventory > 0 ;
+  });
+  console.log('product grid', productGrid)
+
   return (
     <div className="products-grid">
-      {products.map((product, index) => {
+      {productGrid.map((product, index) => {
         return (
           <ProductItem
             key={product.id}
@@ -126,6 +135,7 @@ const PRODUCT_ITEM_FRAGMENT = `#graphql
       width
       height
     }
+    totalInventory
     priceRange {
       minVariantPrice {
         ...MoneyProductItem
