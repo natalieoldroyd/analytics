@@ -116,12 +116,12 @@ console.log('quantityAvailable', quantityAvailable)
 
 const handleAddToCart = () => {
   const currentClickCount = variantClickCounts[selectedVariant.id] || 0;
-  if (currentClickCount > quantityAvailable) return;
+  if (currentClickCount > quantityAvailable + 1) return;
   setVariantClickCounts((prevClickCounts) => ({
     ...prevClickCounts,
     [selectedVariant.id]: currentClickCount + 1,
   }));
-  window.location.href = window.location.href + '#cart-aside';
+  // window.location.href = window.location.href + '#cart-aside';
 };
 
   return (
@@ -132,6 +132,9 @@ const handleAddToCart = () => {
         product={product}
         variants={variants}
       />
+      <span>variantClickCount {variantClickCounts[selectedVariant.id]}</span>
+      <span>selectedVariant.quanityAvailable {selectedVariant.quantityAvailable}</span>
+
             <AddToCartButton
              disabled={!selectedVariant || variantClickCounts[selectedVariant.id] > quantityAvailable}
 
