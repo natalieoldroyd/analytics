@@ -7,7 +7,8 @@ export function AddToCartButton({
   children,
   lines,
   disabled,
-  productAnalytics
+  productAnalytics,
+  onClick,
 }) {
   const analytics = {
     products: [productAnalytics]
@@ -30,8 +31,7 @@ export function AddToCartButton({
               value={JSON.stringify(analytics)}
             />
             <button
-              type="submit"
-
+              type="submit" onClick={onClick} disabled={disabled}
             >
               {children}
             </button>

@@ -1,4 +1,4 @@
-import {Suspense, useEffect} from 'react';
+import {Suspense, useEffect, useState} from 'react';
 import {usePageAnalytics} from '../utils/utils';
 import {defer, redirect} from '@shopify/remix-oxygen';
 import {Await, Link, useLoaderData} from '@remix-run/react';
@@ -107,9 +107,23 @@ export default function Product() {
   const {product, variants, analytics} = useLoaderData();
   const {selectedVariant} = product;
   const data = useLoaderData()
-  // const inStockVariants = variants.nodes.filter((variant) => variant.quantityAvailable > 0);
+  const quantityAvailable = selectedVariant?.quantityAvailable;
+  const [variantClickCounts, setVariantClickCounts] = useState({});
+  // const [clickCount, setClickCount] = useState(0);;
 console.log('data', data)
-// console.log('inStockVariants', inStockVariants)
+console.log('clickCount', variantClickCounts)
+console.log('quantityAvailable', quantityAvailable)
+
+const handleAddToCart = () => {
+  const currentClickCount = variantClickCounts[selectedVariant.id] || 0;
+  if (currentClickCount > quantityAvailable) return;
+  setVariantClickCounts((prevClickCounts) => ({
+    ...prevClickCounts,
+    [selectedVariant.id]: currentClickCount + 1,
+  }));
+  window.location.href = window.location.href + '#cart-aside';
+};
+
   return (
     <div className="product">
       <ProductImage image={selectedVariant?.image} />
@@ -119,10 +133,9 @@ console.log('data', data)
         variants={variants}
       />
             <AddToCartButton
-        disabled={!selectedVariant || !selectedVariant.availableForSale}
-        onClick={() => {
-          window.location.href = window.location.href + '#cart-aside';
-        }}
+             disabled={!selectedVariant || variantClickCounts[selectedVariant.id] > quantityAvailable}
+
+        onClick={handleAddToCart}
         lines={
           selectedVariant
             ? [
