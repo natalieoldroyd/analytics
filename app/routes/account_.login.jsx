@@ -1,16 +1,67 @@
 import {json, redirect} from '@shopify/remix-oxygen';
-import {Form, Link, useActionData} from '@remix-run/react';
+import {Form, Link, useActionData, useLoaderData} from '@remix-run/react';
 
 export const meta = () => {
   return [{title: 'Login'}];
 };
 
-export async function loader({context}) {
-  if (await context.session.get('customerAccessToken')) {
-    return redirect('/account');
-  }
-  return json({});
+export async function loader({context, request}) {
+  // if (await context.session.get('customerAccessToken')) {
+  //   return redirect('/account');
+  // }
+  // return json({});
+
+  const accessToken = context.session.get('customer_access_token')
+
+  if (!Boolean(accessToken)) return json({user: null});
+
+  const userAgent =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36';
+
+  const origin = new URL(request.url).origin // Will be http://localhost:3000 in development or an oxygen generated host
+
+
+  const query = `query customer {
+    customer {
+      emailAddress {
+        emailAddress
+      }
+    }
+  }`
+const variables = {}
+
+const user = await fetch(
+  `https://shopify.com/68829970454/account/customer/api/${context.env.CUSTOMER_API_VERSION}/graphql`,
+  {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'User-Agent': userAgent,
+      Origin: origin,
+      Authorization: accessToken,
+    },
+    body: JSON.stringify({
+      operationName: 'SomeQuery',
+      query,
+      variables: variables,
+    }),
+  },
+  ).then(async (response) => {
+    if (!response.ok) {
+      throw new Error(
+        `${response.status} (RequestID ${response.headers.get(
+          'x-request-id',
+        )}): ${await response.text()}`,
+      );
+    }
+    return ((await response.json())).data;
+  });
+
+return {
+  user,
+};
 }
+
 
 export async function action({request, context}) {
   const {session, storefront} = context;
@@ -60,57 +111,31 @@ export async function action({request, context}) {
 
 export default function Login() {
   const data = useActionData();
+  const {user} = useLoaderData();
   const error = data?.error || null;
 
   return (
-    <div className="login">
-      <h1>Sign in.</h1>
-      <Form method="POST">
-        <fieldset>
-          <label htmlFor="email">Email address</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            placeholder="Email address"
-            aria-label="Email address"
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
-          />
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            placeholder="Password"
-            aria-label="Password"
-            minLength={8}
-            required
-          />
-        </fieldset>
-        {error ? (
-          <p>
-            <mark>
-              <small>{error}</small>
-            </mark>
-          </p>
-        ) : (
-          <br />
-        )}
-        <button type="submit">Sign in</button>
-      </Form>
-      <br />
-      <div>
-        <p>
-          <Link to="/account/recover">Forgot password →</Link>
-        </p>
-        <p>
-          <Link to="/account/register">Register →</Link>
-        </p>
-      </div>
+
+    <div>
+      {user ? (
+        <>
+          <div>
+            <b>
+              Welcome {user.customer.emailAddress.emailAddress}
+            </b>
+          </div>
+          <div>
+            <Form method='post' action='/account/logout'>
+              <button>Logout</button>
+            </Form>
+          </div>
+        </>
+      ) : null}
+      {!user ? (
+        <Form method="post" action="/authorize">
+          <button>Login</button>
+        </Form>
+      ) : null}
     </div>
   );
 }
