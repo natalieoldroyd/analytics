@@ -1,4 +1,5 @@
 import {useNonce} from '@shopify/hydrogen';
+import { GoogleGTM } from './components/GoogleGTM';
 import {defer} from '@shopify/remix-oxygen';
 import { useShopifyCookies, AnalyticsEventName, getClientBrowserParameters, sendShopifyAnalytics} from '@shopify/hydrogen';
 import {usePageAnalytics} from './utils/usePageAnalytics';
@@ -59,6 +60,7 @@ export async function loader({context}) {
   const {storefront, session, cart} = context;
   const customerAccessToken = await session.get('customerAccessToken');
   const publicStoreDomain = context.env.PUBLIC_STORE_DOMAIN;
+  const googleGtmID = context.env.PUBLIC_GOOGLE_GTM_ID;
 
   // validate the customer access token is valid
   const {isLoggedIn, headers} = await validateCustomerAccessToken(
@@ -96,9 +98,8 @@ export async function loader({context}) {
       analytics: {
         shopId: "gid://shopify/Shop/68829970454",
         cartId,
-
-
-      }
+      },
+      googleGtmID,
     },
     {headers},
   );
@@ -128,11 +129,6 @@ export default function App() {
       ...pageAnalytics,
     };
 
-
-    // pageAnalytics = {
-    //    shopId: 'gid://shopify/Shop/1',
-    //    pageType: 'product',
-    // }
     sendShopifyAnalytics({
       eventName: AnalyticsEventName.PAGE_VIEW,
       payload,
@@ -158,6 +154,7 @@ export default function App() {
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
         <LiveReload nonce={nonce} />
+        <GoogleGTM id={data.googleGtmID} />
       </body>
     </html>
   );
