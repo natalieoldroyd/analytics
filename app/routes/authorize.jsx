@@ -147,11 +147,6 @@ export async function loader({request, context}) {
 
       context.session.set('customer_authorization_code_token', access_token);
       context.session.set('expires_in', expires_in);
-      context.session.set(
-        'expires_at',
-        new Date(new Date().getTime() + (expires_in - 120) * 1000).getTime(),
-      );
-
       context.session.set('id_token', id_token);
       context.session.set('refresh_token', refresh_token);
 
