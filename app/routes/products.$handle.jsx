@@ -4,6 +4,7 @@ import {defer, redirect} from '@shopify/remix-oxygen';
 import {Await, Link, useLoaderData} from '@remix-run/react';
 import {getClientBrowserParameters, sendShopifyAnalytics, AnalyticsEventName, AnalyticsPageType} from '@shopify/hydrogen';
 import { AddToCartButton } from '~/components/AddtoCart';
+import { ShopPayButton } from '@shopify/hydrogen-react';
 //hello
 
 import {
@@ -108,7 +109,7 @@ export default function Product() {
   const {selectedVariant} = product;
   const data = useLoaderData()
   // const inStockVariants = variants.nodes.filter((variant) => variant.quantityAvailable > 0);
-console.log('data', data)
+// console.log('data', data)
 // console.log('inStockVariants', inStockVariants)
   return (
     <div className="product">
@@ -118,25 +119,7 @@ console.log('data', data)
         product={product}
         variants={variants}
       />
-            <AddToCartButton
-        disabled={!selectedVariant || !selectedVariant.availableForSale}
-        onClick={() => {
-          window.location.href = window.location.href + '#cart-aside';
-        }}
-        lines={
-          selectedVariant
-            ? [
-                {
-                  merchandiseId: selectedVariant.id,
-                  quantity: 1,
-                },
-              ]
-            : []
-        }
-        productAnalytics={analytics}
-      >
-        {selectedVariant?.availableForSale ? 'Add to cart' : 'Sold out'}
-      </AddToCartButton>
+
     </div>
   );
 }
@@ -222,7 +205,8 @@ function ProductPrice({selectedVariant}) {
 }
 
 function ProductForm({product, selectedVariant, variants, analytics}) {
-  const variantstoPrintProductForm = useLoaderData().variants;
+console.log('variants on product form', variants)
+console.log('selected variant', selectedVariant)
 
   return (
     <div className="product-form">
@@ -234,7 +218,34 @@ function ProductForm({product, selectedVariant, variants, analytics}) {
         {({option}) => <ProductOptions key={option.name} option={option} />}
       </VariantSelector>
       <br />
+      <AddToCartButton
+        disabled={!selectedVariant || !selectedVariant.availableForSale}
+        // onClick={() => {
+        //   window.location.href = window.location.href + '#cart-aside';
+        // }}
 
+        selectedVariant={selectedVariant}
+        lines={
+          selectedVariant
+            ? [
+                {
+                  merchandiseId: selectedVariant.id,
+                  quantity: 1,
+                },
+              ]
+            : []
+        }
+        productAnalytics={analytics}
+      >
+        {selectedVariant?.availableForSale ? 'Add to cart' : 'Sold out'}
+      </AddToCartButton>
+      {selectedVariant.availableForSale && (
+  <ShopPayButton
+    storeDomain={"https://checkout.wewe.boo/"}
+    variantIds={[selectedVariant?.id]}
+    width={'400px'}
+  />
+)}
     </div>
   );
 }
@@ -262,53 +273,14 @@ function ProductOptions({option}) {
             </Link>
           );
         })}
+
+
       </div>
+
       <br />
     </div>
   );
 }
-
-// export function AddToCartButton({
-//   children,
-//   lines,
-//   disabled,
-//   productAnalytics,
-// }) {
-//   const analytics = {
-//     event: 'addToCart',
-//     products: [productAnalytics],
-//   };
-//   return (
-//     <CartForm
-//       route="/cart"
-//       inputs={
-//         {lines}
-//       }
-//       action={CartForm.ACTIONS.LinesAdd}
-//     >
-//       {
-//         (fetcher) => {
-//           return (
-//             <AddToCartAnalytics fetcher={fetcher}>
-//               <input
-//                 type="hidden"
-//                 name="analytics"
-//                 value={JSON.stringify(analytics)}
-//               />
-//               <button
-//                 type="submit"
-//                 disabled={disabled ?? fetcher.state !== 'idle'}
-//               >
-//                 {children}
-//               </button>
-//             </AddToCartAnalytics>
-//           );
-//         }
-//       }
-//     </CartForm>
-//   );
-// }
-
 
 const PRODUCT_VARIANT_FRAGMENT = `#graphql
   fragment ProductVariant on ProductVariant {

@@ -1,24 +1,30 @@
+import {
+  AnalyticsEventName,
+  CartForm,
+  getClientBrowserParameters,
+  sendShopifyAnalytics,
+} from '@shopify/hydrogen';
+import { useEffect } from 'react';
 
-import React, {useEffect} from 'react';
-import {CartForm, AnalyticsEventName, getClientBrowserParameters, sendShopifyAnalytics} from '@shopify/hydrogen';
-import {usePageAnalytics} from '~/utils/usePageAnalytics';
+import { Button } from '~/components/Button';
+import { usePageAnalytics } from '~/utils/usePageAnalytics';
 
 export function AddToCartButton({
   children,
   lines,
+  className = '',
+  variant = 'primary',
+  width = 'full',
   disabled,
-  productAnalytics
+  analytics,
+  ...props
 }) {
-  const analytics = {
-    products: [productAnalytics]
-  };
-
   return (
     <CartForm
       route="/cart"
-      inputs={
-        {lines}
-      }
+      inputs={{
+        lines,
+      }}
       action={CartForm.ACTIONS.LinesAdd}
     >
       {(fetcher) => {
@@ -29,12 +35,17 @@ export function AddToCartButton({
               name="analytics"
               value={JSON.stringify(analytics)}
             />
-            <button
+            <Button
+              as="button"
               type="submit"
-
+              width={width}
+              variant={variant}
+              className={className}
+              disabled={disabled ?? fetcher.state !== 'idle'}
+              {...props}
             >
               {children}
-            </button>
+            </Button>
           </AddToCartAnalytics>
         );
       }}
@@ -42,15 +53,10 @@ export function AddToCartButton({
   );
 }
 
-function AddToCartAnalytics({
-  fetcher,
-  children,
-}) {
-  // Data from action response
+function AddToCartAnalytics({ fetcher, children }) {
   const fetcherData = fetcher.data;
-  // Data in form inputs
   const formData = fetcher.formData;
-  const pageAnalytics = usePageAnalytics({hasUserConsent: true})
+  const pageAnalytics = usePageAnalytics({ hasUserConsent: true });
 
   useEffect(() => {
     if (formData) {
@@ -58,18 +64,14 @@ function AddToCartAnalytics({
       const cartInputs = CartForm.getFormInput(formData);
 
       try {
-        // Get analytics data from form inputs
         if (cartInputs.inputs.analytics) {
-          const dataInForm = JSON.parse(
-            String(cartInputs.inputs.analytics),
-          );
+          const dataInForm = JSON.parse(String(cartInputs.inputs.analytics));
           Object.assign(cartData, dataInForm);
         }
       } catch {
-        console.error('Could not parse analytics data');
+        // do nothing
       }
 
-      // If we got a response from the add to cart action
       if (Object.keys(cartData).length && fetcherData) {
         const addToCartPayload = {
           ...getClientBrowserParameters(),
@@ -83,8 +85,8 @@ function AddToCartAnalytics({
           payload: addToCartPayload,
         });
       }
-
     }
   }, [fetcherData, formData, pageAnalytics]);
+
   return <>{children}</>;
 }
