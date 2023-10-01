@@ -118,6 +118,7 @@ export default function Product() {
         selectedVariant={selectedVariant}
         product={product}
         variants={variants}
+        analytics={analytics}
       />
 
     </div>
@@ -154,6 +155,7 @@ function ProductMain({selectedVariant, product, variants, analytics}) {
             product={product}
             selectedVariant={selectedVariant}
             variants={[]}
+            analytics={analytics}
           />
         }
       >
@@ -166,7 +168,7 @@ function ProductMain({selectedVariant, product, variants, analytics}) {
               product={product}
               selectedVariant={selectedVariant}
               variants={data.product?.variants.nodes || []}
-              productAnalytics={analytics}
+             analytics={analytics}
             />
           )}
         </Await>
@@ -204,9 +206,11 @@ function ProductPrice({selectedVariant}) {
   );
 }
 
-function ProductForm({product, selectedVariant, variants, analytics}) {
+
+function ProductForm({product, variants, selectedVariant, analytics}) {
 console.log('variants on product form', variants)
 console.log('selected variant', selectedVariant)
+console.log('analytics', analytics)
 
   return (
     <div className="product-form">
@@ -220,9 +224,9 @@ console.log('selected variant', selectedVariant)
       <br />
       <AddToCartButton
         disabled={!selectedVariant || !selectedVariant.availableForSale}
-        // onClick={() => {
-        //   window.location.href = window.location.href + '#cart-aside';
-        // }}
+        onClick={() => {
+          window.location.href = window.location.href + '#cart-aside';
+        }}
 
         selectedVariant={selectedVariant}
         lines={
@@ -235,17 +239,19 @@ console.log('selected variant', selectedVariant)
               ]
             : []
         }
-        productAnalytics={analytics}
+        analytics={analytics}
       >
         {selectedVariant?.availableForSale ? 'Add to cart' : 'Sold out'}
       </AddToCartButton>
-      {selectedVariant.availableForSale && (
-  <ShopPayButton
-    storeDomain={"https://checkout.wewe.boo/"}
-    variantIds={[selectedVariant?.id]}
-    width={'400px'}
-  />
-)}
+
+        {
+          selectedVariant?.availableForSale && (
+            <ShopPayButton
+            storeDomain={`https://checkout.wewe.boo?access_token=8509b25b07f27a319d7f887294e299f2}`}
+            variantIds={[selectedVariant?.id]}
+            width={'400px'}
+            />
+        )}
     </div>
   );
 }
