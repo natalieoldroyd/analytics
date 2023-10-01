@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { Link } from '@remix-run/react';
-import clsx from 'clsx';
+import clsx from 'clsx'
 
 import { missingClass } from '~/utils/missingClass';
 
