@@ -1,7 +1,7 @@
 import {ActionArgs, LoaderArgs, redirect} from '@shopify/remix-oxygen';
 
 export async function action({request, context}) {
-    const clientId = context.env.PUBLIC_CUSTOMER_ACCOUNT_CLIENT_ID;
+    const clientId = context.env.PUBLIC_CUSTOMER_ACCOUNT_API_CLIENT_ID;
     const shopID = context.env.PUBLIC_STOREFRONT_ID
     const origin = new URL(request.url).origin;
     const loginUrl = new URL(`https://shopify.com/68829970454/auth/oauth/authorize`)
@@ -100,7 +100,7 @@ export async function loader({request, context}) {
     if (!code) throw new Response("No Code", { status: 400})
     if (state != context.session.get('state')) throw new Response("State does not match", { status: 400})
 
-    const clientId = context.env.PUBLIC_CUSTOMER_ACCOUNT_CLIENT_ID;
+    const clientId = context.env.PUBLIC_CUSTOMER_ACCOUNT_API_CLIENT_ID;
     const origin = new URL(request.url).origin  // In development this would resolve to http://localhost:3000 or an oxygen generated host
 
     const body = new URLSearchParams();
