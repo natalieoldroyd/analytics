@@ -4,9 +4,9 @@ export const meta = () => {
   return [{title: 'Logout'}];
 };
 
-// export async function loader() {
-//   return redirect('/account/login');
-// }
+export async function loader() {
+  return redirect('/');
+}
 
 export async function action({request, context}) {
   // const {session} = context;
