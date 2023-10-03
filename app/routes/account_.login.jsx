@@ -27,11 +27,17 @@ export async function loader({context, request}) {
         emailAddress
       }
     }
+
+    orders(first: 10) {
+      createdAt
+      shipment_status
+    }
+
   }`
 const variables = {}
 
 const user = await fetch(
-  `https://shopify.com/68829970454/account/customer/api/${context.env.CUSTOMER_API_VERSION}/graphql`,
+  `https://shopify.com/68829970454/account/customer/api/unstable/graphql`,
   {
     method: 'POST',
     headers: {
