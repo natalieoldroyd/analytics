@@ -19,9 +19,10 @@ export function CartMain({layout, cart}) {
 
 function CartDetails({layout, cart}) {
   const cartHasItems = !!cart && cart.totalQuantity > 0;
-
+      //lines are passed to Cartlines from here
   return (
     <div className="cart-details">
+
       <CartLines lines={cart?.lines} layout={layout} />
       {cartHasItems && (
         <CartSummary cost={cart.cost} layout={layout}>
@@ -35,6 +36,8 @@ function CartDetails({layout, cart}) {
 
 function CartLines({lines, layout}) {
   if (!lines) return null;
+  console.log('lines on cart lines', lines)
+  //error starts here on lines, it is undefined
 
   return (
     <div aria-labelledby="cart-lines">
@@ -51,6 +54,14 @@ function CartLineItem({layout, line}) {
   const {id, merchandise} = line;
   const {product, title, image, selectedOptions} = merchandise;
   const lineItemUrl = useVariantUrl(product.handle, selectedOptions);
+  console.log('line on cart line', line)
+  console.log('id on cart line', id)
+  console.log('merchandise on cart line', merchandise)
+  console.log('product on cart line', product)
+  console.log('title on cart line', title)
+  console.log('image on cart line', image)
+  console.log('selectedOptions on cart line', selectedOptions)
+  console.log('lineItemUrl on cart line', lineItemUrl)
 
   return (
     <li key={id} className="cart-line">
