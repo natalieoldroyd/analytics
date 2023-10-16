@@ -61,6 +61,7 @@ export async function loader({context}) {
   const customerAccessToken = await session.get('customerAccessToken');
   const publicStoreDomain = context.env.PUBLIC_STORE_DOMAIN;
   const googleGtmID = context.env.PUBLIC_GOOGLE_GTM_ID;
+  console.log('googleGtmID', googleGtmID)
 
   // validate the customer access token is valid
   const {isLoggedIn, headers} = await validateCustomerAccessToken(
@@ -122,7 +123,7 @@ export default function App() {
 
     // Send page view analytics
 
-    console.log('pageAnalytics', pageAnalytics);
+    // console.log('pageAnalytics', pageAnalytics);
 
     const payload = {
       ...getClientBrowserParameters(),
@@ -138,7 +139,7 @@ export default function App() {
 
     // This hook is where you can send a page view event to Shopify and other third-party analytics
   }, [location, pageAnalytics]);
-
+console.log('data.googleGtmID', data.googleGtmID)
   return (
     <html lang="en">
       <head>

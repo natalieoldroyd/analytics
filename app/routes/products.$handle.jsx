@@ -208,9 +208,9 @@ function ProductPrice({selectedVariant}) {
 
 
 function ProductForm({product, variants, selectedVariant, analytics}) {
-console.log('variants on product form', variants)
-console.log('selected variant', selectedVariant)
-console.log('analytics', analytics)
+// console.log('variants on product form', variants)
+// console.log('selected variant', selectedVariant)
+// console.log('analytics', analytics)
 
   return (
     <div className="product-form">
