@@ -3,6 +3,7 @@ import { GoogleGTM } from './components/GoogleGTM';
 import {defer} from '@shopify/remix-oxygen';
 import { useShopifyCookies, AnalyticsEventName, getClientBrowserParameters, sendShopifyAnalytics} from '@shopify/hydrogen';
 import {usePageAnalytics} from './utils/usePageAnalytics';
+import { Script } from '@shopify/hydrogen';
 import React, {useRef, useEffect} from 'react';
 import {
   Links,
@@ -147,6 +148,7 @@ console.log('data.googleGtmID', data.googleGtmID)
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
+        <Script async src="https://cdn.shopify.com/shopifycloud/shopify_chat/storefront/shopifyChatV1.js?api_env=production&amp;c=black&amp;i=chat_bubble&amp;p=bottom_right&amp;s=icon&amp;shop_id=YZGCUtLgXakI8G4v8R30LID59tY3_8GMW-LeHAXG7wE&amp;t=chat_with_us&amp;v=1&amp;vp=lowest&amp;shop=e6cbc1-2.myshopify.com"/>
       </head>
       <body>
         <Layout {...data}>
