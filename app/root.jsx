@@ -182,6 +182,7 @@ export function ErrorBoundary() {
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
+        <script async src="https://cdn.shopify.com/shopifycloud/shopify_chat/storefront/shopifyChatV1.js?api_env=production&amp;c=black&amp;i=chat_bubble&amp;p=bottom_right&amp;s=icon&amp;shop_id=YZGCUtLgXakI8G4v8R30LID59tY3_8GMW-LeHAXG7wE&amp;t=chat_with_us&amp;v=1&amp;vp=lowest&amp;shop=e6cbc1-2.myshopify.com"/>
       </head>
       <body>
         <Layout {...root.data}>
