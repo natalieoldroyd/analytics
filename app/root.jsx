@@ -121,6 +121,7 @@ export default function App() {
   const {gaTrackingId} = data.gaTrackingId;
   console.log('gtm id', data.googleGtmID);
   console.log('gaTrackingId', data.gaTrackingId);
+  //comment for new build
 
   useEffect(() => {
     // Filter out useEffect running twice
