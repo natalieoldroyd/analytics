@@ -5,6 +5,7 @@ import { useShopifyCookies, AnalyticsEventName, getClientBrowserParameters, send
 import {usePageAnalytics} from './utils/usePageAnalytics';
 import { Script } from '@shopify/hydrogen';
 import React, {useRef, useEffect} from 'react';
+import * as gtag from './lib/gtags';
 import {
   Links,
   Meta,
@@ -63,6 +64,7 @@ export async function loader({context}) {
   const publicStoreDomain = context.env.PUBLIC_STORE_DOMAIN;
   const googleGtmID = context.env.PUBLIC_GOOGLE_GTM_ID;
   console.log('googleGtmID', googleGtmID)
+  const gaTrackingId = context.env.GA_TRACKING_ID;
 
   // validate the customer access token is valid
   const {isLoggedIn, headers} = await validateCustomerAccessToken(
@@ -102,6 +104,7 @@ export async function loader({context}) {
         cartId,
       },
       googleGtmID,
+      gaTrackingId,
     },
     {headers},
   );
@@ -115,10 +118,16 @@ export default function App() {
   const location = useLocation();
   const lastLocationKey = useRef('');
   const pageAnalytics = usePageAnalytics({hasUserConsent})
+  const {gaTrackingId} = data.gaTrackingId;
+  console.log('gtm id', data.googleGtmID);
+  console.log('gaTrackingId', data.gaTrackingId);
 
   useEffect(() => {
     // Filter out useEffect running twice
     if (lastLocationKey.current === location.key) return;
+    if (gaTrackingId?.length){
+      gtag.pageview(location.pathname, gaTrackingId)
+    }
 
     lastLocationKey.current = location.key;
 
@@ -139,7 +148,7 @@ export default function App() {
 
 
     // This hook is where you can send a page view event to Shopify and other third-party analytics
-  }, [location, pageAnalytics]);
+  }, [location, pageAnalytics, gaTrackingId]);
 console.log('data.googleGtmID', data.googleGtmID)
   return (
     <html lang="en">
@@ -151,6 +160,28 @@ console.log('data.googleGtmID', data.googleGtmID)
         <Script async src="https://cdn.shopify.com/shopifycloud/shopify_chat/storefront/shopifyChatV1.js?api_env=production&amp;c=black&amp;i=chat_bubble&amp;p=bottom_right&amp;s=icon&amp;shop_id=YZGCUtLgXakI8G4v8R30LID59tY3_8GMW-LeHAXG7wE&amp;t=chat_with_us&amp;v=1&amp;vp=lowest&amp;shop=e6cbc1-2.myshopify.com"/>
       </head>
       <body>
+      {!gaTrackingId ? null : (
+          <>
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaTrackingId}`}
+            />
+            <script
+              async
+              id="gtag-init"
+              dangerouslySetInnerHTML={{
+                __html: `
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${gaTrackingId}', {
+                  page_path: window.location.pathname,
+                });
+              `,
+              }}
+            />
+          </>
+        )}
         <Layout {...data}>
           <Outlet />
         </Layout>
