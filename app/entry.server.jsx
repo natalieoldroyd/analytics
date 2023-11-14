@@ -12,8 +12,7 @@ export default async function handleRequest(
   // const {nonce, header, NonceProvider} = createContentSecurityPolicy();
 
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
-    connectSrc: ["'self'", 'cdn.shopify.com', 'shopify-chat.shopifyapps.com', 'monorail-edge.shopifysvc.com', 'https://www.google-analytics.com'],
-
+    connectSrc: ["'self'", 'cdn.shopify.com', 'shopify-chat.shopifyapps.com', 'monorail-edge.shopifysvc.com'],
   });
 
   const body = await renderToReadableStream(
