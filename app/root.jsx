@@ -161,7 +161,7 @@ console.log('data.googleGtmID', data.googleGtmID)
         <Script async src="https://cdn.shopify.com/shopifycloud/shopify_chat/storefront/shopifyChatV1.js?api_env=production&amp;c=black&amp;i=chat_bubble&amp;p=bottom_right&amp;s=icon&amp;shop_id=YZGCUtLgXakI8G4v8R30LID59tY3_8GMW-LeHAXG7wE&amp;t=chat_with_us&amp;v=1&amp;vp=lowest&amp;shop=e6cbc1-2.myshopify.com"/>
       </head>
       <body>
-      {!gaTrackingId ? null : (
+      {/* {!gaTrackingId ? null : (
           <>
             <script
               async
@@ -182,7 +182,7 @@ console.log('data.googleGtmID', data.googleGtmID)
               }}
             />
           </>
-        )}
+        )} */}
         <Layout {...data}>
           <Outlet />
         </Layout>
